@@ -4,7 +4,7 @@
 
 ### 1. Core Philosophy
 
-- **Mono-repo & Local-First:** All code (Python scrapers/ML, C++ execution, Dagster orchestration, and documentation) lives in a single Git repository.
+- **Mono-repo & Local-First:** All code (Python scrapers/ML, Dagster orchestration, and documentation) lives in a single Git repository.
     
 - **Infrastructure as Code:** No manual UI-based configuration. Every model and data asset is defined as code.
     
