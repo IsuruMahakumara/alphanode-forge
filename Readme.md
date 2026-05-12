@@ -1,7 +1,7 @@
 
 
 
-## Current Repo Struct
+##  Repository Structure
 ```bash
 alphanode-forge/
 ├── blueprint.md

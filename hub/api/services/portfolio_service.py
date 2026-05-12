@@ -1,5 +1,5 @@
 from sqlmodel import Session, select
-from src.models import Portfolio, Transaction
+from hub.api.models import Portfolio, Transaction
 
 
 def get_portfolios_with_totals(session: Session) -> list[dict]:

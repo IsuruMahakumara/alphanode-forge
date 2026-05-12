@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling>=1.18.0"]
+build-backend = "hatchling.build"
+
 [project]
 name = "alpha-node-api"
 version = "0.1.0"
@@ -10,4 +14,7 @@ dependencies = [
 
 [dependency-groups]
 dev = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["hub"]
 

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlmodel import Session
-from src.core.db import get_session
-from src.services.portfolio_service import add_transaction, get_portfolios_with_totals
+from hub.api.core.db import get_session
+from hub.api.services.portfolio_service import add_transaction, get_portfolios_with_totals
 
 router = APIRouter()
 

@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.api.v1.router import router
-from src.core.db import create_db_and_tables
+from hub.api.v1.router import router
+from hub.api.core.db import create_db_and_tables
 
 
 @asynccontextmanager

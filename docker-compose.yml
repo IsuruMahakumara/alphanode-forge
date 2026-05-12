@@ -1,8 +1,12 @@
 services:
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/hub.Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:///data/alpha.db
     volumes:
-      - ./data:/app/data
+      - ./forge/data:/app/data
 

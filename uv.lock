@@ -5,7 +5,7 @@ requires-python = ">=3.12"
 [[package]]
 name = "alpha-node-api"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "sqlmodel" },

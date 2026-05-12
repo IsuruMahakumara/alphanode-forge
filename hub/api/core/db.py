@@ -1,7 +1,8 @@
+import os
 from collections.abc import Generator
 from sqlmodel import Session, SQLModel, create_engine
 
-DATABASE_URL = "sqlite:///data/alpha.db"
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///forge/data/alpha.db")
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
 
