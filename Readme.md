@@ -1,7 +1,7 @@
 
 # AlphaNode Forge
 
-Native desktop build based on `PyQt6` for portfolio monitoring and transaction entry.
+Native desktop build based on `PyQt6`. Crypto summaries from Yahoo Finance (`yfinance`).
 
 ## Run Desktop UI
 
@@ -17,18 +17,13 @@ alphanode-forge/
 ├── blueprint.md
 ├── forge/
 │   └── data/
-│       └── alpha.db
 ├── forge-docs/
-│   └── Project Management.md
 ├── hub/
-│   ├── api/
-│   │   ├── core/
-│   │   ├── models/
-│   │   └── services/
+│   ├── crypto_market.py
 │   └── ui/
+│       ├── crypto_dashboard.py
 │       └── main.py
 ├── pyproject.toml
 ├── Readme.md
 └── uv.lock
 ```
-

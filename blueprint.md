@@ -9,9 +9,8 @@ This blueprint reflects the current **PyQt desktop** architecture. The project i
 
 AlphaNode Forge is a local-first trading workstation:
 
-- ingest and manage portfolio/transaction data,
+- show live crypto market summaries in a native desktop UI,
 - run domain logic from shared Python modules,
-- present operational workflows through a native `PyQt6` desktop interface,
 - support exploratory analysis in Python notebooks (the Lab).
 
 ## 2. Current Architecture (Desktop-First)
@@ -19,30 +18,22 @@ AlphaNode Forge is a local-first trading workstation:
 ### A. UI Layer: `hub/ui` (PyQt6)
 
 - Entry point: `hub/ui/main.py`
-- Responsibility:
-  - render portfolio and transaction workflows in a native desktop window,
-  - capture user actions (create/update operations),
-  - call backend services/modules directly within the Python runtime.
+- `hub/ui/crypto_dashboard.py` — table UI, background fetch, manual refresh.
 
-### B. Service/Domain Layer: `hub/api` and `forge`
+### B. Market Data: `hub/crypto_market.py`
 
-- `hub/api` contains application services, models, and core orchestration logic.
-- `forge` contains shared domain/data assets used across the project.
-- Responsibility:
-  - validate business operations,
-  - execute portfolio and transaction logic,
-  - persist and query data.
+- Yahoo Finance fetch via `yfinance` for a fixed list of major crypto tickers.
+- No HTTP API layer; UI imports this module directly.
 
-### C. Persistence Layer
+### C. Shared Assets: `forge/`
 
-- Local data path exists under `forge/data` (for example `alpha.db`).
-- The desktop app and service layer use this storage for operational state.
+- Data files and shared domain assets for notebooks and future features.
 
 ### D. The Lab: `research/notebooks`
 
 - Jupyter notebooks for plotting, discovery, and ad-hoc analysis.
-- Notebooks import from `forge/` and `hub/api` where possible; they are not the production runtime.
-- **Research-to-production:** logic intended for the desktop app or shared libraries must live in `forge/` (or `hub/api` when app-specific), then be imported into notebooks—not copied the other way around.
+- Notebooks import from `forge/` and `hub/` where useful; they are not the production runtime.
+- **Research-to-production:** reusable logic belongs in `forge/` or `hub/`, then is imported into notebooks—not copied the other way around.
 
 ## 3. Repository Structure (Current)
 
@@ -51,18 +42,14 @@ alphanode-forge/
 ├── blueprint.md
 ├── forge/
 │   └── data/
-│       └── alpha.db
 ├── forge-docs/
-│   └── Project Management.md
 ├── hub/
-│   ├── api/
-│   │   ├── core/
-│   │   ├── models/
-│   │   └── services/
+│   ├── crypto_market.py
 │   └── ui/
+│       ├── crypto_dashboard.py
 │       └── main.py
 ├── research/               # The Lab (not shipped with the desktop app)
-│   └── notebooks/          # Jupyter; imports from forge/
+│   └── notebooks/
 ├── pyproject.toml
 ├── Readme.md
 └── uv.lock
@@ -79,5 +66,3 @@ uv run python -m hub.ui.main
 ```
 
 - Notebooks: use the same `uv` environment; open `research/notebooks/` in Jupyter or VS Code.
-- Browser-only dashboard assumptions are deprecated.
-- Docker-based two-container split (`scout`/`hub`) is deprecated for the current operating model.
