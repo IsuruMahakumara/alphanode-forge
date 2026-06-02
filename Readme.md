@@ -1,25 +1,34 @@
 
+# AlphaNode Forge
 
+Native desktop build based on `PyQt6` for portfolio monitoring and transaction entry.
 
-##  Repository Structure
+## Run Desktop UI
+
+```bash
+uv sync
+uv run python -m hub.ui.main
+```
+
+## Repository Structure
+
 ```bash
 alphanode-forge/
 ├── blueprint.md
-├── data
-│   └── alpha.db
-├── docker-compose.yml
-├── Dockerfile
-├── forge-docs
+├── forge/
+│   └── data/
+│       └── alpha.db
+├── forge-docs/
 │   └── Project Management.md
+├── hub/
+│   ├── api/
+│   │   ├── core/
+│   │   ├── models/
+│   │   └── services/
+│   └── ui/
+│       └── main.py
 ├── pyproject.toml
 ├── Readme.md
-├── src
-│   ├── __pycache__
-│   ├── api
-│   ├── core
-│   ├── main.py
-│   ├── models
-│   └── services
 └── uv.lock
 ```
 
