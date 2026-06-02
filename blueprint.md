@@ -3,93 +3,81 @@
 
 # Project Blueprint: alphanode-forge
 
-This blueprint defines the dual-container architecture for the research, synthesis, and management layers of the AlphaNode project. 
+This blueprint reflects the current **PyQt desktop** architecture. The project is no longer centered on a browser UI or containerized web dashboard.
 
 ## 1. High-Level Objective
-The **Forge** acts as the intelligence center. It transforms raw market data into trading parameters ("Forging the Edge"). To optimize costs and performance, it is split into two specialized containers deployed on different hardware nodes.
 
-## 2. The Two-Container Architecture
+AlphaNode Forge is a local-first trading workstation:
 
-### A. Container 1: `forge-scout` (The Engine)
-*   **Target Hardware:** Oracle ARM64 (24GB RAM).
-*   **Responsibility:** 
-    *   **The CLI:** POSIX-style terminal tool for "Homework" tasks (Scanning).
-    *   **The Lab:** Jupyter Notebook environment for data visualization.
-    *   **The Replay Agent:** C++-driven backtesting engine used to validate signals against historical DuckDB/Parquet data.
-    *   **Model Inference:** Loading `.onnx` model artifacts via ONNX Runtime for live signal generation.
-    *   **The Calculus:** Numba/NumPy optimized math libraries.
-*   **Why here?** Needs proximity to the **Metal** engine for shared data volumes and massive RAM for historical number crunching.
+- ingest and manage portfolio/transaction data,
+- run domain logic from shared Python modules,
+- present operational workflows through a native `PyQt6` desktop interface,
+- support exploratory analysis in Python notebooks (the Lab).
 
-### B. Container 2: `forge-hub` (The Watchtower)
-*   **Target Hardware:** Oracle AMD (1GB RAM).
-*   **Responsibility:** 
-    *   **The API:** FastAPI server managing state and relaying commands.
-    *   **The UI:** Svelte 5 (Runes) dashboard for real-time monitoring.
-*   **Why here?** Decouples the UI from the heavy math. Even if the Scout is pinning all 4 ARM cores to 100%, the Dashboard remains responsive on the AMD node.
+## 2. Current Architecture (Desktop-First)
 
+### A. UI Layer: `hub/ui` (PyQt6)
 
-### C. Supporting Infrastructure: The Data & Model Lake
-* **Analytical Storage:** **MotherDuck (DuckDB)** + **S3-Compatible Object Storage** (OCI).
-    * **Role:** Acts as the "Cold Path" archive for high-volume Parquet data (historical bars, web-scraped CSE data).
-* **Model Registry:** **MLflow**.
-    * **Role:** The "Lab Notebook" that tracks model weights (`.onnx`), hyperparameters, and performance metrics across experiments.
-* **Data Versioning:** **DVC (Data Version Control)**.
-    * **Role:** Links specific Git commits to the raw Parquet data used during training to ensure lineage.
+- Entry point: `hub/ui/main.py`
+- Responsibility:
+  - render portfolio and transaction workflows in a native desktop window,
+  - capture user actions (create/update operations),
+  - call backend services/modules directly within the Python runtime.
 
----
+### B. Service/Domain Layer: `hub/api` and `forge`
 
-## 3. Repository Structure
+- `hub/api` contains application services, models, and core orchestration logic.
+- `forge` contains shared domain/data assets used across the project.
+- Responsibility:
+  - validate business operations,
+  - execute portfolio and transaction logic,
+  - persist and query data.
+
+### C. Persistence Layer
+
+- Local data path exists under `forge/data` (for example `alpha.db`).
+- The desktop app and service layer use this storage for operational state.
+
+### D. The Lab: `research/notebooks`
+
+- Jupyter notebooks for plotting, discovery, and ad-hoc analysis.
+- Notebooks import from `forge/` and `hub/api` where possible; they are not the production runtime.
+- **Research-to-production:** logic intended for the desktop app or shared libraries must live in `forge/` (or `hub/api` when app-specific), then be imported into notebooks—not copied the other way around.
+
+## 3. Repository Structure (Current)
 
 ```bash
 alphanode-forge/
-├── .devcontainer/          # Unified dev environment for Mac (ARM64)
-├── docker/
-│   ├── scout.Dockerfile    # Builds the heavy math + CLI image
-│   └── hub.Dockerfile      # Builds the slim FastAPI + UI image
-├── forge/                  # Shared Core Logic
-│   ├── calculus/           # Numba-accelerated math (Z-Scores, Cointegration)
-│   ├── cli/                # Typer-based CLI commands
-│   └── data/               # Oracle DB and IBKR data handlers
-│   └── model/              # Local ONNX registry and Metadata Sidecars
-├── forge-docs/             # Obsidian-based Markdown documentation
-├── hub/                    # The Web Layer
-│   ├── api/                # FastAPI endpoints
-│   └── ui/                 # Svelte 5 frontend project
-├── research/               # The Lab
-│   └── notebooks/          # Exploratory analysis (Imports from forge/)
-├── pyproject.toml          # Managed by 'uv' (Rust-based dependency manager)
-└── docker-compose.yml      # Orchestrates local testing
+├── blueprint.md
+├── forge/
+│   └── data/
+│       └── alpha.db
+├── forge-docs/
+│   └── Project Management.md
+├── hub/
+│   ├── api/
+│   │   ├── core/
+│   │   ├── models/
+│   │   └── services/
+│   └── ui/
+│       └── main.py
+├── research/               # The Lab (not shipped with the desktop app)
+│   └── notebooks/          # Jupyter; imports from forge/
+├── pyproject.toml
+├── Readme.md
+└── uv.lock
 ```
 
----
+## 4. Runtime and Development Notes
 
-## 4. Technical Requirements for the Coding Agent
+- Primary runtime is local Python via `uv`.
+- Desktop launch command:
 
-### I. Communication Pattern
-*   **Statelessness:** The Scout and Hub do not talk to each other directly. They communicate via the **Oracle Autonomous Database**.
-*   **Scout Action:** Writes optimized pair parameters to the DB.
-*   **Hub Action:** Reads those parameters to display on the UI and allows the user to send "Override" flags back to the DB.
+```bash
+uv sync
+uv run python -m hub.ui.main
+```
 
-### II. Performance Standards
-*   **Cold-Path (Hub):** Focus on async non-blocking I/O to keep the 1GB RAM AMD instance stable.
-*   **Hot-Path (Scout):** Use **Numba `@jit`** for all iterative math. Pure Python loops are strictly forbidden in the `calculus/` directory.
-*   **Environment:** All Python code must be compatible with **Python 3.11+** and **ARM64** architecture.
-
-### III. The "Research-to-Production" Rule
-*   Notebooks in `/research` are for **plotting and discovery only**.
-*   Any logic that is intended to be used by the CLI or the C++ engine **must** be refactored into the `forge/` core library and imported into the notebook.
-
-### I. Communication Pattern
-* **Transactional (Hot Path):** The Scout and Hub use the **Oracle Autonomous Database** for live command relay and real-time parameter overrides.
-* **Analytical (Cold Path):** Historical research and complex feature engineering are handled via **MotherDuck**, querying Parquet files stored in **OCI Object Storage**.
-* **Lineage Bridge:** Every model promoted to the Oracle DB must be tagged in **MLflow** with a corresponding Git hash and DVC data version.
-
-
----
-
-### Summary of the Distribution
-
-| Container | Image Name | Deploy Location | Resource Profile |
-| :--- | :--- | :--- | :--- |
-| **Scout** | `an-forge-scout` | Oracle ARM (Node A) | High RAM / High CPU |
-| **Hub** | `an-forge-hub` | Oracle AMD (Node B) | Low RAM / Low CPU |
+- Notebooks: use the same `uv` environment; open `research/notebooks/` in Jupyter or VS Code.
+- Browser-only dashboard assumptions are deprecated.
+- Docker-based two-container split (`scout`/`hub`) is deprecated for the current operating model.
