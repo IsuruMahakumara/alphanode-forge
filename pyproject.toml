@@ -3,18 +3,20 @@ requires = ["hatchling>=1.18.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "alpha-node-api"
-version = "0.1.0"
+name = "alpha-node-forge"
+version = "0.2.0"
 requires-python = ">=3.12"
 dependencies = [
-    "pyqt6>=6.7.0",
     "sqlmodel>=0.0.22",
-    "yfinance>=0.2.40",
 ]
 
+[project.scripts]
+alpha-forge = "hub.cli:main"
+
 [dependency-groups]
-dev = []
+dev = [
+    "pandas>=2.2",
+]
 
 [tool.hatch.build.targets.wheel]
-packages = ["hub"]
-
+packages = ["forge", "hub"]

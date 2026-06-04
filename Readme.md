@@ -1,39 +1,35 @@
 
 # AlphaNode Forge
 
-Native desktop build based on `PyQt6`. Crypto summaries from Yahoo Finance (`yfinance`).
+Headless quant research factory (Jim Simons–style pivot). **No charts, no PyQt.**
 
-## Run Desktop UI
+## Run
 
 ```bash
 uv sync
-uv run python -m hub.ui.main
+uv run alpha-forge status
+uv run alpha-forge init-db   # create forge/data/systematic.db schema
 ```
 
 ## Repository Structure
 
 ```bash
 alphanode-forge/
+├── CHANGELOG.md
 ├── blueprint.md
-├── forge/
-│   └── data/
+├── docs/
+├── forge/                  # features, signals, execution, promotion gate
 ├── forge-docs/
-├── hub/
-│   ├── crypto_market.py
-│   └── ui/
-│       ├── crypto_dashboard.py
-│       └── main.py
+├── hub/                    # CLI only
+├── research/notebooks/     # Lab (non-production)
 ├── pyproject.toml
-├── Readme.md
 └── uv.lock
 ```
 
+See [blueprint.md](blueprint.md) and [docs/simons-principles.md](docs/simons-principles.md).
 
 ## Kernel Port Forwarding
 
 ```bash
 ssh -N -L 8888:localhost:8888 oci-arm
 ```
-
-
-
