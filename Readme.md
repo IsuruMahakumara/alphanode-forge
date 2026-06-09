@@ -1,14 +1,14 @@
 
 # AlphaNode Forge
 
-Headless quant research factory (Jim Simons–style pivot). **No charts, no PyQt.**
+Local-first stat-arb research factory (Jim Simons–style pivot). **No dashboard** — notebook plots only.
 
 ## Run
 
 ```bash
 uv sync
-uv run alpha-forge status
-uv run alpha-forge init-db   # create forge/data/systematic.db schema
+uv run python ingest/init_db.py
+uv run python ingest/jsonl_to_parquet.py
 ```
 
 ## Repository Structure
@@ -16,17 +16,16 @@ uv run alpha-forge init-db   # create forge/data/systematic.db schema
 ```bash
 alphanode-forge/
 ├── CHANGELOG.md
-├── blueprint.md
-├── docs/
+├── datalake/               # flat *.jsonl / *.parquet (gitignored)
+├── ingest/                 # python ingest scripts
 ├── forge/                  # features, signals, execution, promotion gate
 ├── forge-docs/
-├── hub/                    # CLI only
-├── research/notebooks/     # Lab (non-production)
+├── research/               # lab notebooks (flat)
 ├── pyproject.toml
 └── uv.lock
 ```
 
-See [blueprint.md](blueprint.md) and [docs/simons-principles.md](docs/simons-principles.md).
+See [forge-docs/blueprint.md](forge-docs/blueprint.md) and [forge-docs/simons-principles.md](forge-docs/simons-principles.md).
 
 ## Kernel Port Forwarding
 

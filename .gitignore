@@ -1,11 +1,11 @@
 /.venv/
 /.env
-/data/
+/datalake/
 __pycache__/
 /.cursor/
 
 /forge-docs/.obsidian/
 /docs/.obsidian/
 
-# Systematic state (created by alpha-forge init-db)
+# Systematic state (created by ingest/init_db.py)
 /forge/data/*.db
