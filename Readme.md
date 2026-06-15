@@ -9,6 +9,8 @@ Local-first stat-arb research factory (Jim Simons–style pivot). **No dashboard
 uv sync
 uv run python ingest/init_db.py
 uv run python ingest/jsonl_to_parquet.py
+
+xmake build p2p_monitor
 ```
 
 ## Repository Structure
