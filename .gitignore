@@ -2,7 +2,7 @@
 /.env
 /datalake/
 __pycache__/
-/.cursor/
+
 
 /forge-docs/.obsidian/
 /docs/.obsidian/

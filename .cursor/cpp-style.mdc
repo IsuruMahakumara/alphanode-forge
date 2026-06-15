@@ -1,0 +1,30 @@
+---
+description: C++ style — minimal header surface, why-comments
+globs: "**/*.{hpp,cpp}"
+alwaysApply: false
+---
+
+# C++ headers
+
+- **Few exported names** — entry + shared state/data only.
+- **No one-liner wrappers** — inline; don’t add a name without real logic.
+- **Struct when shared** — pass snapshot `const&` between sites; no return bags.
+- **One read pass** — load shared state once, pass downstream.
+- **Concrete over generic** — unroll fixed sequences; abstract when N or direction varies.
+- **Split files** only when a second real caller exists — not for planned work.
+
+Before adding a name: used in >1 place or stable API? non-trivial? can’t stay readable inlined? Any **no** → don’t add it.
+
+# Comments
+
+- Short; on new/changed code.
+- **Why** or non-obvious invariant — not what the line does.
+- Prefer one line.
+
+```cpp
+// BAD: increment counter
+++n;
+
+// GOOD: single-writer gate — one eval per burst
+if (gate.exchange(1) != 0) return;
+```
