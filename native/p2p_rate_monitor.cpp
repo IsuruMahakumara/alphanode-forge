@@ -26,7 +26,7 @@ int main() {
     }
 
     DbConnection db;
-    if (!db.connect("forge")) {
+    if (!db.connect("binance")) {
         return 1;
     }
 

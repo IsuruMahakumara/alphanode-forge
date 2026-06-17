@@ -111,6 +111,10 @@ public:
             return;
         }
 
+        if (!ensure_table()) {
+            return;
+        }
+
         stmt_ = mysql_stmt_init(conn_);
         if (!stmt_) {
             std::cerr << "mysql_stmt_init failed: " << mysql_error(conn_) << '\n';
@@ -207,6 +211,28 @@ public:
     }
 
 private:
+    bool ensure_table() {
+        static const char* kCreateSql = R"(
+            CREATE TABLE IF NOT EXISTS p2p_rates (
+                unix_ts BIGINT NOT NULL PRIMARY KEY,
+                recorded_at DATETIME NOT NULL,
+                best_buy_rate DOUBLE NULL,
+                best_sell_rate DOUBLE NULL,
+                buy_min DOUBLE NOT NULL DEFAULT 0,
+                buy_max DOUBLE NOT NULL DEFAULT 0,
+                sell_min DOUBLE NOT NULL DEFAULT 0,
+                sell_max DOUBLE NOT NULL DEFAULT 0
+            )
+        )";
+
+        if (mysql_query(conn_, kCreateSql)) {
+            std::cerr << "mysql_query failed: " << mysql_error(conn_) << '\n';
+            return false;
+        }
+
+        return true;
+    }
+
     MYSQL* conn_;
     MYSQL_STMT* stmt_;
     bool ready_;
