@@ -10,6 +10,7 @@ uv sync
 uv run python ingest/init_db.py
 uv run python ingest/jsonl_to_parquet.py
 
+xmake f -c
 xmake build p2p_monitor
 ```
 
