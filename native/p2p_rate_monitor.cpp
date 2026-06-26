@@ -1,4 +1,4 @@
-#include "p2p_types.h"
+#include "p2p_types.hpp"
 #include <httplib.h>
 #include <simdjson.h>
 #include <fstream>

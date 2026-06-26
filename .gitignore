@@ -9,3 +9,6 @@ __pycache__/
 
 # Systematic state (created by ingest/init_db.py)
 /forge/data/*.db
+/build/
+/.xmake/
+/forge/data/*.db

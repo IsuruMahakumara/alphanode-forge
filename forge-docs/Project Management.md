@@ -1,71 +1,50 @@
 
-
-## Alpha Node-Forge: Project Management 
+## Alpha Node-Forge: Project Management (Simons pivot)
 
 ### 1. Core Philosophy
 
-- **Mono-repo & Local-First:** All code (Python scrapers/ML, Dagster orchestration, and documentation) lives in a single Git repository.
-    
-- **Infrastructure as Code:** No manual UI-based configuration. Every model and data asset is defined as code.
-    
-- **Zero-Footprint Portability:** Use open standards (Parquet, ONNX) to ensure the stack can move between OCI, GCP, and AWS without lock-in.
-    
+- **No dashboard:** Notebook plots OK; no PyQt, web UI, or watchlists.
+- **Mono-repo & local-first:** Python ingest, notebooks, and `forge/` in one Git repo.
+- **Flat layout:** `datalake/`, `ingest/`, `research/` — no deep nesting.
+- **Systematic ledger:** Positions and fills attributed to `model_id` + `run_id` (`forge/execution`).
+- **Stat arb focus:** Market-neutral, unsupervised-first research.
 
 ---
 
-### 2. The "Solo-Pro" Tech Stack
+### 2. Tech stack (v1)
 
-|**Layer**|**Technology**|**Implementation Detail**|
-|---|---|---|
-|**Orchestration**|**Dagster**|Hosted on **OCI Always Free VM**. Manages the Asset Graph.|
-|**Data Lake**|**S3 / OCI Object Storage**|Stores raw and cleaned data in **Parquet** (Hive-partitioned).|
-|**Analytics Engine**|**MotherDuck (DuckDB)**|Hybrid local/cloud SQL engine for feature engineering and research.|
-|**ML Lifecycle**|**MLflow**|Tracks experiments and serves as a Model Registry.|
-|**Execution DB**|**OCI Autonomous DB**|The "Hot Layer" for C++ engine access (Free Tier: 2 instances).|
-|**Model Format**|**ONNX**|Standardized format for Python training to C++ inference.|
-|**Version Control**|**Git + DVC**|Git for code; DVC for tracking data/model artifact hashes.|
+| **Layer** | **Technology** | **Detail** |
+|-----------|----------------|------------|
+| **Data lake** | `datalake/` | Flat JSONL + Parquet (gitignored) |
+| **Ingest** | `ingest/*.py` | JSONL → Parquet, DB init |
+| **Analytics** | Polars + notebooks | Research in `research/` |
+| **ML** | scikit-learn (dev) | Unsupervised clustering / PCA |
+| **Local state** | SQLite (`systematic.db`) | Runs, positions, fills |
+| **Catalog** | MySQL `:3309` | Planned metadata store |
 
----
-
-### 3. Data & Model Lineage Protocol
-
-To prevent "Lineage Failure," every production model must be pinned to specific hashes:
-
-1. **Code Version:** Git commit hash.
-    
-2. **Data Version:** DVC hash (representing the state of S3 Parquet at training time).
-    
-3. **Metadata Sidecar:** A JSON file accompanying the `.onnx` artifact containing feature order and scaling parameters (Mean/Std Dev).
-    
+Cloud orchestration (Dagster, MLflow, S3, ONNX) is **out of v1 scope**.
 
 ---
 
-### 4. Computational Strategy
+### 3. Data & model lineage
 
-- **Management (The Brain):** Use **OCI Always Free (Ampere A1)** for the Dagster webserver, daemon, and MLflow (24GB RAM / 4 vCPUs).
-    
-- **Burst Tasks:** Trigger **GCP Cloud Run Jobs** via Dagster for heavy web-scraping or resource-intensive ML training to leverage GCP's free tier credits.
-    
-- **Execution (The Forge):** High-performance C++ engine pulls signals and models directly from the OCI Hot Layer and Object Storage.
-    
+Every promoted model is pinned to:
+
+1. **Code:** Git commit hash.
+2. **Data:** Parquet snapshot path or hash at train time.
 
 ---
 
-### 5. Documentation & Decision Logging
+### 4. Documentation
 
-- **Technical Docs:** Use **Obsidian** (Markdown) within the `/docs` folder of the mono-repo. Use bidirectional links to connect philological/trading logic to specific strategies.
-    
-- **Operational Docs:** Utilize **Dagster Asset Descriptions** and **MLflow Tags** to create a living, searchable lineage graph.
-    
-- **Decision Log:** Maintain a `CHANGELOG.md` at the root. Every model promotion must record the "Why" (reasoning) linked to a Git commit and DVC hash.
-    
+- **Principles:** `forge-docs/simons-principles.md`
+- **Research gate:** `forge-docs/research-gate.md`
+- **Notebook naming:** `research/ipynb-naming.md`
+- **Promotions:** root `CHANGELOG.md` — metrics + hashes only
 
 ---
 
-### 6. Boundary Conditions & Safeguards
+### 5. Safeguards
 
-- **Data Integrity:** Implement **Dagster Asset Checks** to halt pipelines if scrapers return null values or anomalous price jumps (e.g., CSE corporate actions).
-    
-- **Hardware Failover:** Maintain a local "Walking Skeleton" (Docker-compose) that can run the full Dagster/DuckDB stack offline in case of connectivity issues.
-    
-- **Monitoring:** Use a "Dead Man's Switch" (e.g., Healthchecks.io) to monitor the OCI VM heartbeat.
+- **Promotion gate** — `forge.promotion.passes_gate` before execution.
+- **Research gate** — no notebook → production without OOS metrics.
