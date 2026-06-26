@@ -3,6 +3,7 @@
 /datalake/
 __pycache__/
 
+.env
 
 /forge-docs/.obsidian/
 /docs/.obsidian/
