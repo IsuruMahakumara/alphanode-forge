@@ -38,6 +38,25 @@ CREATE TABLE IF NOT EXISTS forge_bronze.yfinance_equity_eod (
     FOREIGN KEY (run_id) REFERENCES forge_bronze.ingest_run (run_id)
 ) ENGINE=InnoDB;
 
+-- FX spot pairs (static bootstrap universe via ingest/fx_yfinance.py)
+CREATE TABLE IF NOT EXISTS forge_bronze.yfinance_fx_eod (
+  run_id         BIGINT UNSIGNED NOT NULL,
+  yf_ticker      VARCHAR(24)     NOT NULL COMMENT 'yfinance symbol e.g. EURUSD=X',
+  pair           VARCHAR(16)     NOT NULL COMMENT 'human pair e.g. EUR/USD',
+  trade_date     DATE            NOT NULL,
+  open           DECIMAL(18,6)   NULL,
+  high           DECIMAL(18,6)   NULL,
+  low            DECIMAL(18,6)   NULL,
+  close          DECIMAL(18,6)   NULL,
+  adj_close      DECIMAL(18,6)   NULL,
+  ingested_at    DATETIME(6)     NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (run_id, yf_ticker, trade_date),
+  KEY idx_fx_pair_date (pair, trade_date),
+  KEY idx_fx_yf_ticker_date (yf_ticker, trade_date),
+  CONSTRAINT fk_bronze_fx_run
+    FOREIGN KEY (run_id) REFERENCES forge_bronze.ingest_run (run_id)
+) ENGINE=InnoDB;
+
 -- S&P 500 universe (refreshed from FMP via ingest/sp500_constituents.py)
 CREATE TABLE IF NOT EXISTS forge_bronze.sp500_constituent (
   symbol         VARCHAR(24)     NOT NULL COMMENT 'FMP symbol',

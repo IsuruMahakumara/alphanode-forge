@@ -26,13 +26,13 @@ from db import apply_schema, connect
 LOG = logging.getLogger(__name__)
 DATASET = "fx_eod"
 PAIRS = {
-    "EUR/USD": "EURUSD=X",
-    "USD/JPY": "USDJPY=X",
-    "USD/CNY": "USDCNY=X",
-    "GBP/USD": "GBPUSD=X",
-    "USD/SGD": "USDSGD=X",
+    # "EUR/USD": "EURUSD=X",
+    # "USD/JPY": "USDJPY=X",
+    # "USD/CNY": "USDCNY=X",
+    # "GBP/USD": "GBPUSD=X",
+    # "USD/SGD": "USDSGD=X",
     "USD/LKR": "USDLKR=X",
-    "USD/INR": "USDINR=X",
+   # "USD/INR": "USDINR=X",
 }
 RENAME = {
     "Date": "trade_date",
